@@ -1,0 +1,752 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Drone Approval Support, motion lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --font:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --wrap:72rem; --gutter:clamp(1.25rem,4vw,2rem); --section-y:clamp(4.5rem,10vw,8rem);
+  --bg:#07090d; --raised:#0c1017; --panel:#11161f; --line:#1b222d; --line-soft:rgba(244,246,250,.08);
+  --ink:#f4f6fa; --ink-2:#c3ccd8; --muted:#97a2b2; --accent:#1f5eff; --accent-hover:#1a4fd6; --accent-text:#7ea4ff;
+  --accent-soft:rgba(31,94,255,.18); --ok:#3ccf9a; --amber:#f0a83a; --risk:#ef6a4c;
+  --glass:rgba(9,12,18,.62); --glass-line:rgba(244,246,250,.13); --ghost-line:rgba(244,246,250,.24);
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);line-height:1.6;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent-text);outline-offset:3px;border-radius:6px}
+.theme-light{--bg:#f4f6fa;--raised:#fff;--panel:#fff;--line:#d9dfe8;--line-soft:#e6eaf0;--ink:#0b1017;--ink-2:#36414f;--muted:#4f5b6b;--accent:#1748c7;--accent-text:#1748c7;--accent-soft:#e6edff;--ghost-line:rgba(11,16,23,.2)}
+.theme-light{background:var(--bg);color:var(--ink)}
+
+/* header */
+.site-header{position:fixed;inset-inline:0;top:calc(env(safe-area-inset-top,0px) + 1rem);z-index:60;padding-inline:var(--gutter);pointer-events:none}
+.pill{pointer-events:auto;max-width:var(--wrap);margin:0 auto;display:flex;align-items:center;gap:1.5rem;padding:.45rem .45rem .45rem 1.35rem;border-radius:999px;background:var(--raised);border:1px solid var(--glass-line)}
+@supports (backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px)){.pill{background:var(--glass);-webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%)}}
+.brand{font-weight:800;letter-spacing:-.035em;font-size:1.08rem;color:var(--ink);text-decoration:none;white-space:nowrap}
+.pill-links{display:flex;gap:1.6rem;list-style:none;margin:0 0 0 .5rem;padding:0}
+.pill-links a{color:var(--muted);font-size:.9rem;font-weight:500;text-decoration:none;transition:color .15s}
+.pill-links a:hover{color:var(--ink)}
+.pill-actions{margin-left:auto;display:flex;align-items:center;gap:.35rem}
+.pill{transition:background-color .35s,border-color .35s}
+.pill .brand,.pill-links a{transition:color .35s}
+.site-header.on-light .pill{background:rgba(255,255,255,.78);border-color:rgba(11,16,23,.1)}
+.site-header.on-light .brand{color:#0b1017}
+.site-header.on-light .pill-links a{color:#4f5b6b}
+.site-header.on-light .pill-links a:hover{color:#0b1017}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 1.45rem;border-radius:999px;font-weight:650;font-size:.97rem;letter-spacing:-.01em;text-decoration:none;border:1px solid transparent;cursor:pointer;font-family:inherit;transition:transform .2s,background-color .2s,border-color .2s}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent-hover)}
+.btn-ghost{background:transparent;border-color:var(--ghost-line);color:var(--ink)}
+.btn-ghost:hover{border-color:var(--ink)}
+.btn-sm{min-height:40px;padding:0 1.1rem;font-size:.88rem}
+
+/* type */
+.h1{font-size:clamp(2.55rem,1.5rem + 4.7vw,5.2rem);font-weight:800;letter-spacing:-.045em;line-height:1.02;margin:0 auto;max-width:15ch;text-wrap:balance}
+.h1 .line{display:block;overflow:hidden;padding-bottom:.09em;margin-bottom:-.09em}
+.h1 .line>span{display:block;text-wrap:balance}
+.h2{font-size:clamp(1.9rem,1.3rem + 2.6vw,3.2rem);font-weight:800;letter-spacing:-.038em;line-height:1.08;margin:0;text-wrap:balance}
+.lead{font-size:clamp(1.05rem,1rem + .35vw,1.22rem);line-height:1.55;color:var(--ink-2);max-width:42ch;margin:1.25rem auto 0;text-wrap:pretty}
+.sec-head{max-width:var(--wrap);margin:0 auto;text-align:center}
+.sec-head .lead{margin-top:1rem}
+.wrap{max-width:var(--wrap);margin:0 auto}
+.panel{background:var(--raised);border:1px solid var(--line);border-radius:22px;box-shadow:0 1px 0 rgba(255,255,255,.035) inset,0 40px 90px rgba(0,0,0,.42)}
+.theme-light .panel{box-shadow:0 1px 2px rgba(11,16,23,.05),0 30px 70px rgba(11,16,23,.09)}
+.note{font-size:.8rem;color:var(--muted)}
+.caption{display:grid;margin:1.8rem auto 0;max-width:var(--wrap);text-align:center;font-size:1.02rem;font-weight:500;color:var(--ink-2);letter-spacing:-.01em}
+.caption span{grid-area:1/1}
+.caption span+span{opacity:0;visibility:hidden}
+
+/* ===== 1. hero + video layers ===== */
+.hero{padding:9.5rem var(--gutter) 3rem;text-align:center}
+.cta-row{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;margin-top:2.1rem}
+.fineprint{margin:1.1rem 0 0;font-size:.86rem;color:var(--muted)}
+.layers-stage{padding:1rem var(--gutter) 4rem}
+.layers{position:relative;max-width:var(--wrap);margin:0 auto}
+.vframe{position:relative;border-radius:22px;overflow:hidden;background:#000;aspect-ratio:16/9;box-shadow:0 40px 100px rgba(0,0,0,.55);border:1px solid var(--line-soft)}
+.vframe video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.vframe .vtag{position:absolute;left:1rem;bottom:1rem;font-size:.78rem;font-weight:600;padding:.35rem .7rem;border-radius:999px;background:rgba(7,9,13,.62);border:1px solid var(--glass-line);color:var(--ink-2);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.appcard{padding:1.4rem;margin-top:1.25rem}
+.ac-head{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding-bottom:1rem;border-bottom:1px solid var(--line);margin-bottom:.4rem}
+.ac-head strong{font-size:1rem;font-weight:700;letter-spacing:-.015em}
+.badge{display:grid}
+.badge span{grid-area:1/1;justify-self:end;font-size:.76rem;font-weight:650;padding:.28rem .65rem;border-radius:999px;white-space:nowrap}
+.b-draft{background:rgba(244,246,250,.08);color:var(--muted)}
+.b-done{background:rgba(60,207,154,.15);color:var(--ok);opacity:0;visibility:hidden}
+.ac-rows{list-style:none;margin:0;padding:0}
+.ac-rows li{display:grid;grid-template-columns:1.5rem 1fr auto;gap:.85rem;align-items:center;padding:.8rem 0;border-bottom:1px solid var(--line)}
+.ac-rows li:last-child{border-bottom:0}
+.ac-rows .t{font-size:.93rem;font-weight:600;letter-spacing:-.01em}
+.ac-rows .m{font-size:.84rem;color:var(--muted);white-space:nowrap}
+.tick{width:1.5rem;height:1.5rem;border-radius:50%;border:1.5px solid var(--ghost-line);display:grid;place-items:center}
+.tick svg{opacity:0;transform:scale(.5)}
+.ac-foot{margin-top:.9rem}
+@media (min-width:900px){
+  .layers-stage{height:100vh;height:100svh;display:flex;flex-direction:column;justify-content:center;padding:5.5rem var(--gutter) 2.5rem}
+  .layers{width:100%;height:min(62vh,600px)}
+  .vframe{position:absolute;top:0;left:0;width:100%;height:100%;aspect-ratio:auto}
+  .appcard{position:absolute;top:50%;left:54%;width:46%;margin:0;transform:translateY(-50%)}
+}
+
+/* ===== 2. scrub video ===== */
+.sec{padding:var(--section-y) var(--gutter)}
+.scrub-stage{height:100vh;height:100svh;padding:5.75rem var(--gutter) 5rem;display:flex}
+.scrub-frame{position:relative;flex:1;max-width:var(--wrap);margin:0 auto;border-radius:24px;overflow:hidden;background:#05070a;border:1px solid var(--line-soft)}
+.scrub-frame canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.scrub-bar{position:absolute;left:1.25rem;right:1.25rem;top:1.25rem;height:3px;border-radius:3px;background:rgba(255,255,255,.18);overflow:hidden}
+.scrub-bar i{display:block;height:100%;width:100%;background:#fff;transform-origin:0 50%;transform:scaleX(0)}
+.scrub-caps{position:absolute;left:1.25rem;bottom:1.25rem;display:grid;max-width:min(26rem,calc(100% - 2.5rem))}
+.scrub-cap{grid-area:1/1;padding:1rem 1.15rem;border-radius:16px;background:rgba(7,9,13,.66);border:1px solid var(--glass-line);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.scrub-cap+.scrub-cap{opacity:0;visibility:hidden}
+.scrub-cap strong{display:block;font-size:1.02rem;font-weight:700;letter-spacing:-.015em}
+.scrub-cap span{display:block;font-size:.88rem;color:var(--ink-2);margin-top:.25rem;line-height:1.5}
+
+/* ===== 3. sticky steps ===== */
+.steps-grid{max-width:var(--wrap);margin:3.5rem auto 0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:4rem}
+.steps{list-style:none;margin:0;padding:0}
+.step{min-height:62vh;display:flex;flex-direction:column;justify-content:center;padding:1rem 0;opacity:.38;transition:opacity .4s}
+.step.is-active{opacity:1}
+.step .n{font-size:.88rem;font-weight:700;color:var(--accent-text);margin-bottom:.5rem}
+.step h3{margin:0;font-size:clamp(1.4rem,1.1rem + 1vw,2rem);font-weight:800;letter-spacing:-.03em;line-height:1.12}
+.step p{margin:.75rem 0 0;color:var(--ink-2);max-width:36ch;font-size:1.02rem}
+.sv-wrap{position:relative}
+.sv-sticky{position:sticky;top:calc(50vh - 220px);height:440px}
+.sv-panel{position:relative;height:100%;overflow:hidden}
+.sv{position:absolute;inset:0;padding:1.6rem;display:flex;flex-direction:column;opacity:0;visibility:hidden;transform:translateY(12px);transition:opacity .45s,transform .45s,visibility .45s}
+.sv.is-active{opacity:1;visibility:visible;transform:none}
+.sv-title{font-size:.86rem;font-weight:650;color:var(--muted);margin-bottom:1rem}
+.sv-body{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0}
+.chip{align-self:flex-start;margin-top:1rem;font-size:.84rem;font-weight:650;padding:.4rem .8rem;border-radius:999px;background:var(--accent-soft);color:var(--accent-text)}
+.field{display:grid;grid-template-columns:8.5rem 1fr;gap:1rem;padding:.8rem 0;border-bottom:1px solid var(--line);font-size:.93rem}
+.field:last-child{border-bottom:0}
+.field b{font-weight:500;color:var(--muted)}
+.field span{font-weight:600;opacity:0;transform:translateX(-6px);transition:opacity .4s,transform .4s}
+.sv.is-active .field span{opacity:1;transform:none}
+.sv.is-active .field:nth-child(2) span{transition-delay:.15s}
+.sv.is-active .field:nth-child(3) span{transition-delay:.3s}
+.sv.is-active .field:nth-child(4) span{transition-delay:.45s}
+.density{display:grid;grid-template-columns:repeat(14,1fr);gap:4px;position:relative}
+.density i{aspect-ratio:1;border-radius:3px;background:var(--panel)}
+.density .area{position:absolute;border:2px dashed var(--accent-text);border-radius:8px;left:28%;top:18%;width:44%;height:60%}
+.airspace{width:100%;height:auto;display:block}
+.oso{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-top:1rem}
+.oso i{height:28px;border-radius:7px;background:var(--panel);border:1px solid var(--line);transition:background-color .3s,border-color .3s}
+.sv.is-active .oso i.on{background:var(--accent-soft);border-color:rgba(126,164,255,.45)}
+.sail-big{font-size:3.4rem;font-weight:800;letter-spacing:-.05em;line-height:1}
+.sail-big small{font-size:1rem;font-weight:500;letter-spacing:-.01em;color:var(--muted);margin-left:.6rem}
+.tl{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.tl li{display:grid;grid-template-columns:1.5rem 1fr;gap:1rem;position:relative;padding-bottom:1.6rem}
+.tl li:last-child{padding-bottom:0}
+.tl li::before{content:"";position:absolute;left:.72rem;top:1.5rem;bottom:0;width:2px;background:var(--line)}
+.tl li:last-child::before{display:none}
+.tl .dot{width:1.5rem;height:1.5rem;border-radius:50%;border:2px solid var(--line);background:var(--raised);position:relative;z-index:1}
+.tl .done .dot{border-color:var(--ok);background:var(--ok)}
+.tl .now .dot{border-color:var(--accent-text)}
+.tl strong{display:block;font-size:.95rem;font-weight:650;letter-spacing:-.01em}
+.tl span{display:block;font-size:.85rem;color:var(--muted)}
+
+/* ===== 4. map ===== */
+.map-stage{padding:2rem var(--gutter) 0}
+.map-panel{max-width:var(--wrap);margin:0 auto;padding:clamp(.75rem,2vw,1.25rem)}
+.map{display:block;width:100%;height:auto;border-radius:14px}
+.map .lbl{font:600 15px var(--font);fill:var(--ink);letter-spacing:-.01em}
+.map .lbl-sub{font:500 13px var(--font);fill:var(--muted)}
+.legend{list-style:none;margin:1rem 0 0;padding:0 .25rem;display:flex;flex-wrap:wrap;gap:.6rem 1.6rem;font-size:.88rem;color:var(--ink-2)}
+.legend li{display:flex;align-items:center;gap:.55rem}
+.legend i{width:14px;height:14px;border-radius:4px}
+@media (min-width:900px){
+  .map-stage{height:100vh;height:100svh;display:flex;flex-direction:column;justify-content:center;padding:5.5rem var(--gutter) 2rem}
+  .map-panel{width:100%}
+  .map{max-height:calc(100svh - 15rem);object-fit:contain}
+}
+@media (max-width:899px){.map .lbl,.map .lbl-sub,.map .leader{display:none}}
+
+/* ===== 5. matrix ===== */
+.mx-grid{max-width:var(--wrap);margin:3rem auto 0;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:3.5rem;align-items:center}
+.mx{display:grid;grid-template-columns:5.2rem repeat(4,1fr);gap:6px;font-variant-numeric:tabular-nums}
+.mx .h{font-size:.82rem;font-weight:650;color:var(--muted);display:grid;place-items:center;padding:.4rem 0;border-radius:8px;transition:background-color .3s,color .3s}
+.mx .h.row{justify-items:start;padding-left:.6rem}
+.mx .c{height:56px;border-radius:10px;display:grid;place-items:center;font-weight:700;font-size:.95rem;letter-spacing:-.01em;transition:box-shadow .3s,transform .3s}
+.mx .s1{background:#e7eeff;color:#1d3a8a}.mx .s2{background:#cfdcff;color:#1d3a8a}.mx .s3{background:#a9c0ff;color:#13286a}
+.mx .s4{background:#7d9bf5;color:#fff}.mx .s5{background:#4f73e0;color:#fff}.mx .s6{background:#1d3a8a;color:#fff}
+.mx .h.hl{background:#0b1017;color:#fff}
+.mx .c.hit{box-shadow:0 0 0 3px #fff,0 0 0 6px #0b1017;transform:scale(1.06)}
+.mx-axis{display:flex;justify-content:space-between;font-size:.8rem;color:var(--muted);margin:.6rem 0 0 5.6rem}
+.mx-side h3{margin:0;font-size:clamp(1.35rem,1.1rem + .8vw,1.8rem);font-weight:800;letter-spacing:-.03em;line-height:1.15}
+.mx-side p{color:var(--ink-2);margin:.8rem 0 0}
+.mx-result{margin-top:1.4rem;display:flex;gap:.6rem;flex-wrap:wrap}
+.mx-result span{font-size:.86rem;font-weight:650;padding:.42rem .85rem;border-radius:999px;background:#fff;border:1px solid var(--line)}
+.mx-result span.sail{background:#0b1017;color:#fff;border-color:#0b1017}
+
+/* ===== 6. live demo ===== */
+.demo{position:relative;max-width:56rem;margin:3rem auto 0;padding:clamp(1.1rem,3vw,2rem);overflow:hidden}
+.demo-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.4rem}
+.demo-top strong{font-size:1rem;font-weight:700;letter-spacing:-.015em}
+.q{margin-bottom:1.15rem}
+.q p{margin:0 0 .55rem;font-size:.9rem;font-weight:600;color:var(--ink-2)}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opt{font:inherit;font-size:.9rem;font-weight:550;padding:.6rem 1rem;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--ink-2);cursor:pointer;transition:background-color .2s,border-color .2s,color .2s}
+.opt.sel{background:var(--accent-soft);border-color:rgba(126,164,255,.6);color:var(--ink)}
+.demo .go{margin-top:.6rem}
+.result{position:absolute;inset:auto clamp(1.1rem,3vw,2rem) clamp(1.1rem,3vw,2rem);padding:1.4rem;border-radius:18px;background:var(--panel);border:1px solid rgba(126,164,255,.35);box-shadow:0 30px 80px rgba(0,0,0,.5);opacity:0;visibility:hidden;transform:translateY(20px)}
+.result small{display:block;font-size:.84rem;font-weight:600;color:var(--accent-text)}
+.result strong{display:block;font-size:1.6rem;font-weight:800;letter-spacing:-.035em;margin-top:.2rem}
+.result p{margin:.5rem 0 0;color:var(--ink-2);font-size:.95rem;max-width:52ch}
+.cursor{position:absolute;left:0;top:0;width:22px;height:22px;pointer-events:none;z-index:5;opacity:0;filter:drop-shadow(0 4px 8px rgba(0,0,0,.5))}
+.replay{font:inherit;font-size:.85rem;font-weight:600;color:var(--accent-text);background:none;border:0;cursor:pointer;padding:.4rem .2rem}
+
+/* final cta + footer */
+.final{text-align:center}
+.foot{padding:2rem var(--gutter) 7rem;text-align:center;font-size:.84rem;color:var(--muted);border-top:1px solid var(--line)}
+
+/* switcher */
+.switcher{position:fixed;left:50%;bottom:calc(1rem + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:70;display:flex;gap:.15rem;padding:.3rem;border-radius:999px;background:rgba(14,16,20,.78);border:1px solid rgba(255,255,255,.12);-webkit-backdrop-filter:blur(16px) saturate(140%);backdrop-filter:blur(16px) saturate(140%);box-shadow:0 12px 32px rgba(0,0,0,.3);max-width:calc(100vw - 1.5rem)}
+.switcher a{display:flex;align-items:center;gap:.4rem;min-height:40px;padding:0 .8rem;border-radius:999px;color:#c9ced6;font-size:.82rem;font-weight:600;text-decoration:none;white-space:nowrap;transition:background-color .2s,color .2s}
+.switcher a b{font-weight:800}
+.switcher a.is-active{background:#f3f4f6;color:#0b0c0f}
+
+/* responsive */
+@media (max-width:899px){
+  .steps-grid{grid-template-columns:1fr;gap:0;margin-top:2rem}
+  .sv-wrap{display:none}
+  .step{min-height:0;opacity:1;padding:2.25rem 0}
+  .step .sv-inline{position:relative;inset:auto;opacity:1;visibility:visible;transform:none;margin-top:1.4rem;min-height:290px}
+  .step .sv-inline .field span{opacity:1;transform:none}
+  .mx-grid{grid-template-columns:1fr;gap:2rem}
+  .caption{display:none}
+  .switcher a span{display:none}
+  .switcher a{padding:0 .85rem}
+  .pill-links{display:none}
+  .result{position:relative;inset:auto;margin-top:1rem}
+}
+@media (max-width:520px){
+  .hero{padding-top:8rem}
+  .mx{grid-template-columns:3.6rem repeat(4,1fr);gap:4px}
+  .mx .c{height:46px;font-size:.85rem}
+  .mx-axis{margin-left:4rem}
+  .field{grid-template-columns:6.5rem 1fr}
+  .airspace text{font-size:23px}
+  .airspace .sub{display:none}
+  .sv{padding:1.15rem}
+  .pill{padding-left:1.1rem;gap:.75rem}
+  .brand{font-size:.98rem}
+}
+@media (prefers-reduced-motion:reduce){.btn,.step,.sv,.field span,.opt{transition:none}.btn:hover{transform:none}}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <nav class="pill" aria-label="Main menu">
+    <a class="brand" href="#top">Drone Approval Support</a>
+    <ul class="pill-links">
+      <li><a href="#s-steps">How it works</a></li>
+      <li><a href="#s-map">Services</a></li>
+      <li><a href="#s-matrix">Resources</a></li>
+    </ul>
+    <div class="pill-actions"><a class="btn btn-primary btn-sm" href="#s-demo">Free check</a></div>
+  </nav>
+</header>
+
+<main id="top">
+
+<!-- 1. HERO + VIDEO LAYERS -->
+<section id="s-hero" aria-label="Introduction">
+  <div class="hero">
+    <h1 class="h1">
+      <span class="line"><span>Want to use drones</span></span>
+      <span class="line"><span>in your business?</span></span>
+    </h1>
+    <p class="lead">We tell you which permission you need, prepare the documents and guide you to legal operations.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="#s-demo">Get your free approval check</a>
+      <a class="btn btn-ghost" href="#s-steps">See how it works</a>
+    </div>
+    <p class="fineprint">Two minutes. No account needed.</p>
+  </div>
+
+  <div class="layers-stage" id="layers-stage">
+    <div class="layers">
+      <div class="vframe">
+        <video autoplay muted loop playsinline preload="auto" poster="__POSTER__" aria-label="A tethered drone cleaning a glass façade">
+          <source src="__VIDEO__" type="video/mp4">
+        </video>
+        <span class="vtag">Real operation, Lendav Hollandlane</span>
+      </div>
+      <div class="panel appcard">
+        <div class="ac-head"><strong>Operational authorisation</strong><span class="badge"><span class="b-draft">Draft</span><span class="b-done">Submitted</span></span></div>
+        <ul class="ac-rows">
+          <li><span class="tick"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.2l2.3 2.3 4.7-5" fill="none" stroke="#04261a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="t">Concept of operations</span><span class="m">Façade cleaning, urban</span></li>
+          <li><span class="tick"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.2l2.3 2.3 4.7-5" fill="none" stroke="#04261a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="t">Ground risk class</span><span class="m">GRC 4</span></li>
+          <li><span class="tick"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.2l2.3 2.3 4.7-5" fill="none" stroke="#04261a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="t">Air risk class</span><span class="m">ARC-b</span></li>
+          <li><span class="tick"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.2l2.3 2.3 4.7-5" fill="none" stroke="#04261a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="t">SAIL and safety objectives</span><span class="m">SAIL III</span></li>
+          <li><span class="tick"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.2l2.3 2.3 4.7-5" fill="none" stroke="#04261a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="t">Operations manual</span><span class="m">Ready</span></li>
+        </ul>
+        <p class="note ac-foot">Illustrative example values.</p>
+      </div>
+    </div>
+    <p class="caption" aria-live="polite">
+      <span>A real operation: a tethered drone cleaning a façade in a city centre.</span>
+      <span>Before it may fly, every risk is described and assessed.</span>
+      <span>Then the complete file goes to the aviation authority.</span>
+    </p>
+  </div>
+</section>
+
+<!-- 2. SCRUB VIDEO -->
+<section id="s-scrub" aria-label="One flight, frame by frame">
+  <div class="sec" style="padding-bottom:1rem">
+    <div class="sec-head">
+      <h2 class="h2">One flight, frame by frame.</h2>
+      <p class="lead">Scroll to move through a real operation. This is what an authority wants to understand before it says yes.</p>
+    </div>
+  </div>
+  <div class="scrub-stage" id="scrub-stage">
+    <div class="scrub-frame">
+      <canvas id="scrub-canvas" aria-label="Video frames of a drone cleaning a façade, controlled by scrolling" role="img"></canvas>
+      <div class="scrub-bar"><i></i></div>
+      <div class="scrub-caps" aria-live="polite">
+        <div class="scrub-cap"><strong>Hover and stabilise</strong><span>The drone holds its position before the wash starts.</span></div>
+        <div class="scrub-cap"><strong>Clean the glass façade</strong><span>Water pressure is chosen for the material.</span></div>
+        <div class="scrub-cap"><strong>Move to the next façade</strong><span>The hose stays attached for the whole flight.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. STICKY STEPS -->
+<section id="s-steps" class="sec" aria-label="How it works">
+  <div class="sec-head">
+    <h2 class="h2">From plan to permission in five steps.</h2>
+    <p class="lead">You describe what you want to do. We turn it into the file an authority can approve.</p>
+  </div>
+  <div class="steps-grid">
+    <ol class="steps">
+      <li class="step is-active" data-i="0"><div class="n">Step 1</div><h3>Describe the operation</h3><p>What, where, how high and with which drone. This concept of operations is the base of every application.</p></li>
+      <li class="step" data-i="1"><div class="n">Step 2</div><h3>Assess the ground risk</h3><p>How many people could be below the flight, and how serious an impact could be.</p></li>
+      <li class="step" data-i="2"><div class="n">Step 3</div><h3>Assess the air risk</h3><p>Which airspace you fly in, and how likely you are to meet manned aircraft.</p></li>
+      <li class="step" data-i="3"><div class="n">Step 4</div><h3>Set the safety level</h3><p>Ground and air risk combine into a SAIL. The SAIL decides how robust your safety measures must be.</p></li>
+      <li class="step" data-i="4"><div class="n">Step 5</div><h3>Submit to the authority</h3><p>We submit the file and handle the questions until the authorisation is issued.</p></li>
+    </ol>
+    <div class="sv-wrap">
+      <div class="sv-sticky">
+        <div class="panel sv-panel">
+          <div class="sv is-active" data-i="0">
+            <div class="sv-title">Concept of operations</div>
+            <div class="sv-body">
+              <div class="field"><b>Drone</b><span>Tethered multicopter</span></div>
+              <div class="field"><b>Area</b><span>City centre</span></div>
+              <div class="field"><b>Height</b><span>Up to 40 m</span></div>
+              <div class="field"><b>Line of sight</b><span>Visual (VLOS)</span></div>
+            </div>
+          </div>
+          <div class="sv" data-i="1">
+            <div class="sv-title">Population below the flight</div>
+            <div class="sv-body"><div class="density" id="density"><span class="area" aria-hidden="true"></span></div></div>
+            <span class="chip">Ground risk class 4, illustrative</span>
+          </div>
+          <div class="sv" data-i="2">
+            <div class="sv-title">Airspace</div>
+            <div class="sv-body">
+              <svg class="airspace" viewBox="0 0 520 230" aria-hidden="true">
+                <rect x="0" y="0" width="520" height="84" rx="10" fill="rgba(239,106,76,.14)"/>
+                <text x="16" y="30" fill="#f4f6fa" font-size="14" font-weight="650" font-family="Inter, sans-serif">Controlled airspace</text>
+                <text class="sub" x="16" y="52" fill="#97a2b2" font-size="12.5" font-family="Inter, sans-serif">Manned traffic, clearance required</text>
+                <rect x="0" y="94" width="520" height="136" rx="10" fill="rgba(126,164,255,.1)"/>
+                <text x="16" y="122" fill="#f4f6fa" font-size="14" font-weight="650" font-family="Inter, sans-serif">Uncontrolled, below 120 m</text>
+                <line x1="0" y1="186" x2="520" y2="186" stroke="#7ea4ff" stroke-width="2" stroke-dasharray="5 6"/>
+                <text x="16" y="176" fill="#7ea4ff" font-size="12.5" font-weight="600" font-family="Inter, sans-serif">Operation up to 40 m</text>
+                <g transform="translate(400 186)"><circle r="7" fill="#7ea4ff"/><circle cx="-12" cy="-8" r="5" fill="none" stroke="#7ea4ff" stroke-width="1.6"/><circle cx="12" cy="-8" r="5" fill="none" stroke="#7ea4ff" stroke-width="1.6"/><circle cx="-12" cy="8" r="5" fill="none" stroke="#7ea4ff" stroke-width="1.6"/><circle cx="12" cy="8" r="5" fill="none" stroke="#7ea4ff" stroke-width="1.6"/></g>
+              </svg>
+            </div>
+            <span class="chip">Air risk class b, illustrative</span>
+          </div>
+          <div class="sv" data-i="3">
+            <div class="sv-title">Safety level</div>
+            <div class="sv-body">
+              <div class="sail-big">SAIL III<small>illustrative</small></div>
+              <div class="oso" id="oso" aria-hidden="true"></div>
+            </div>
+            <span class="chip">24 operational safety objectives, robustness set by the SAIL</span>
+          </div>
+          <div class="sv" data-i="4">
+            <div class="sv-title">Authority review</div>
+            <div class="sv-body">
+              <ol class="tl">
+                <li class="done"><span class="dot"></span><div><strong>File submitted</strong><span>Complete application with manual</span></div></li>
+                <li class="now"><span class="dot"></span><div><strong>Questions from the authority</strong><span>We answer on your behalf</span></div></li>
+                <li><span class="dot"></span><div><strong>Authorisation issued</strong><span>You may fly within its conditions</span></div></li>
+              </ol>
+            </div>
+            <span class="chip">For example ILT in the Netherlands, Transpordiamet in Estonia</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. MAP -->
+<section id="s-map" aria-label="Operational volume">
+  <div class="sec" style="padding-bottom:1rem">
+    <div class="sec-head">
+      <h2 class="h2">Every flight has a defined volume.</h2>
+      <p class="lead">An authority does not only look at your route. It looks at the space around it, and at what happens if something goes wrong.</p>
+    </div>
+  </div>
+  <div class="map-stage" id="map-stage">
+    <div class="panel map-panel">
+      <svg class="map" viewBox="0 0 1000 560" role="img" aria-label="Map of a flight route with three nested safety volumes around it">
+        <rect width="1000" height="560" fill="#0c1118"/>
+        <g fill="#111924">
+          <rect x="30" y="30" width="220" height="150" rx="6"/><rect x="270" y="30" width="180" height="120" rx="6"/><rect x="470" y="30" width="250" height="90" rx="6"/>
+          <rect x="740" y="30" width="230" height="200" rx="6"/><rect x="30" y="200" width="160" height="180" rx="6"/><rect x="210" y="170" width="240" height="140" rx="6"/>
+          <rect x="30" y="400" width="300" height="130" rx="6"/><rect x="350" y="330" width="200" height="200" rx="6"/><rect x="570" y="400" width="400" height="130" rx="6"/>
+          <rect x="740" y="250" width="230" height="130" rx="6"/>
+        </g>
+        <path d="M0 395 C 200 380, 330 300, 520 315 S 800 380, 1000 300" fill="none" stroke="#12304f" stroke-width="16"/>
+        <path d="M460 0 L 460 560 M0 160 L 1000 160" stroke="#1a2330" stroke-width="8"/>
+        <g fill="#1a2330"><rect x="600" y="160" width="26" height="22" rx="3"/><rect x="636" y="186" width="22" height="20" rx="3"/><rect x="606" y="196" width="22" height="26" rx="3"/><rect x="664" y="168" width="24" height="22" rx="3"/><rect x="644" y="222" width="26" height="20" rx="3"/></g>
+        <defs><path id="route" d="M140 470 C 260 430, 300 330, 420 300 S 620 330, 700 250 S 820 120, 900 110"/></defs>
+        <use href="#route" class="vol vol3" fill="none" stroke="rgba(239,106,76,.16)" stroke-width="150" stroke-linecap="round" stroke-linejoin="round"/>
+        <use href="#route" class="vol vol2" fill="none" stroke="rgba(240,168,58,.22)" stroke-width="86" stroke-linecap="round" stroke-linejoin="round"/>
+        <use href="#route" class="vol vol1" fill="none" stroke="rgba(126,164,255,.32)" stroke-width="38" stroke-linecap="round" stroke-linejoin="round"/>
+        <path id="route-line" d="M140 470 C 260 430, 300 330, 420 300 S 620 330, 700 250 S 820 120, 900 110" fill="none" stroke="#f4f6fa" stroke-width="2.5" stroke-dasharray="2 7" stroke-linecap="round"/>
+        <g class="lbls">
+          <g class="lbl-g g1"><line class="leader" x1="560" y1="318" x2="560" y2="470" stroke="#7ea4ff" stroke-width="1.5"/><text class="lbl" x="568" y="486">Flight geography</text><text class="lbl-sub" x="568" y="506">Where you plan to fly</text></g>
+          <g class="lbl-g g2"><line class="leader" x1="305" y1="352" x2="236" y2="262" stroke="#f0a83a" stroke-width="1.5"/><text class="lbl" x="60" y="236">Contingency volume</text><text class="lbl-sub" x="60" y="256">Room to recover from errors</text></g>
+          <g class="lbl-g g3"><line class="leader" x1="800" y1="205" x2="850" y2="300" stroke="#ef6a4c" stroke-width="1.5"/><text class="lbl" x="770" y="322">Ground risk buffer</text><text class="lbl-sub" x="770" y="342">Protects people outside</text></g>
+        </g>
+        <g id="drone" transform="translate(140 470)">
+          <circle r="9" fill="#f4f6fa"/><circle r="3.5" fill="#1f5eff"/>
+          <g fill="none" stroke="#f4f6fa" stroke-width="2"><circle cx="-13" cy="-13" r="7"/><circle cx="13" cy="-13" r="7"/><circle cx="-13" cy="13" r="7"/><circle cx="13" cy="13" r="7"/></g>
+        </g>
+      </svg>
+      <ul class="legend">
+        <li><i style="background:rgba(126,164,255,.6)"></i>Flight geography: where you plan to fly</li>
+        <li><i style="background:rgba(240,168,58,.55)"></i>Contingency volume: room to recover</li>
+        <li><i style="background:rgba(239,106,76,.5)"></i>Ground risk buffer: protects people outside</li>
+      </ul>
+    </div>
+    <p class="caption" aria-live="polite">
+      <span>First the route you want to fly.</span>
+      <span>Around it, the volumes the SORA asks you to define.</span>
+      <span>The bigger the buffer, the fewer people can be affected.</span>
+    </p>
+  </div>
+</section>
+
+<!-- 5. MATRIX -->
+<section id="s-matrix" class="sec theme-light" aria-label="SAIL matrix">
+  <div class="sec-head">
+    <h2 class="h2">Ground risk plus air risk gives your SAIL.</h2>
+    <p class="lead">The SORA risk matrix decides how much safety work your operation needs. Here is how one operation lands in it.</p>
+  </div>
+  <div class="mx-grid">
+    <div>
+      <div class="mx" id="mx" role="table" aria-label="SAIL matrix, SORA 2.0"></div>
+      <div class="mx-axis"><span>Lower air risk</span><span>Higher air risk</span></div>
+    </div>
+    <div class="mx-side">
+      <h3>Façade cleaning in a city centre</h3>
+      <p>A tethered drone over a populated area, in uncontrolled airspace below 40 metres. Its risks meet in one cell of the matrix.</p>
+      <div class="mx-result"><span>Ground risk class 4</span><span>Air risk class b</span><span class="sail">SAIL III</span></div>
+      <p class="note" style="margin-top:1.2rem">Illustrative values. Matrix based on JARUS SORA 2.0.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 6. LIVE DEMO -->
+<section id="s-demo" class="sec" aria-label="Free approval check">
+  <div class="sec-head">
+    <h2 class="h2">Know in two minutes which permission you need.</h2>
+    <p class="lead">This is how the free approval check works. Four questions, one clear answer.</p>
+  </div>
+  <div class="panel demo" id="demo">
+    <div class="demo-top"><strong>Approval check</strong><button class="replay" type="button" id="replay">Play again</button></div>
+    <div class="q"><p>What will you do?</p><div class="opts"><button class="opt" type="button">Photography</button><button class="opt" type="button" data-pick>Inspection</button><button class="opt" type="button">Delivery</button></div></div>
+    <div class="q"><p>Will you see the drone the whole time?</p><div class="opts"><button class="opt" type="button">Yes, within sight</button><button class="opt" type="button" data-pick>No, beyond sight</button></div></div>
+    <div class="q"><p>Where will you fly?</p><div class="opts"><button class="opt" type="button" data-pick>Sparsely populated</button><button class="opt" type="button">Urban area</button></div></div>
+    <div class="q"><p>How heavy is the drone?</p><div class="opts"><button class="opt" type="button">Under 900 g</button><button class="opt" type="button" data-pick>900 g to 25 kg</button></div></div>
+    <button class="btn btn-primary go" type="button" id="go">See my result</button>
+    <div class="result" id="result" role="status">
+      <small>Your result</small>
+      <strong>Specific category</strong>
+      <p>Flights beyond visual line of sight are not allowed in the Open category. You need an operational authorisation, usually based on a SORA. We can prepare it for you.</p>
+    </div>
+    <svg class="cursor" id="cursor" viewBox="0 0 22 22" aria-hidden="true"><path d="M3 2l15 8.5-6.6 1.6L8.6 19z" fill="#fff" stroke="#0b1017" stroke-width="1.4" stroke-linejoin="round"/></svg>
+  </div>
+</section>
+
+<section class="sec final" aria-label="Contact">
+  <h2 class="h2">Ready to fly legally?</h2>
+  <p class="lead">Tell us what you want to do. You get a clear answer and a plan, without the aviation jargon.</p>
+  <div class="cta-row"><a class="btn btn-primary" href="#s-demo">Get your free approval check</a><a class="btn btn-ghost" href="#top">Talk to us</a></div>
+</section>
+</main>
+<footer class="foot">Motion lab for Drone Approval Support. Video: Lendav Hollandlane. Example values are illustrative.</footer>
+
+<nav class="switcher" aria-label="Jump to pattern">
+  <a href="#s-hero" data-t="s-hero" class="is-active"><b>1</b><span>Videolagen</span></a>
+  <a href="#s-scrub" data-t="s-scrub"><b>2</b><span>Scroll-video</span></a>
+  <a href="#s-steps" data-t="s-steps"><b>3</b><span>Stappen</span></a>
+  <a href="#s-map" data-t="s-map"><b>4</b><span>Kaart</span></a>
+  <a href="#s-matrix" data-t="s-matrix"><b>5</b><span>Matrix</span></a>
+  <a href="#s-demo" data-t="s-demo"><b>6</b><span>Live demo</span></a>
+</nav>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/MotionPathPlugin.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script>
+var FRAMES = __FRAMES__;
+(function(){
+  "use strict";
+  var $=function(s,r){return (r||document).querySelector(s);};
+  var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));};
+  var reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var hasGsap=!!(window.gsap&&window.ScrollTrigger);
+  var OK="#3ccf9a";
+
+  /* ---------- static builds ---------- */
+  (function buildDensity(){
+    var d=$("#density"), n=14*8, html="";
+    for(var i=0;i<n;i++){
+      var x=i%14, y=Math.floor(i/14);
+      var v=Math.max(0,1-Math.hypot((x-6.5)/6,(y-3.5)/4))+((Math.sin(i*12.9898)*43758.5453)%1+1)%1*0.35;
+      var a=Math.min(.95,.08+v*.8);
+      html+='<i style="background:rgba(126,164,255,'+a.toFixed(2)+')"></i>';
+    }
+    d.insertAdjacentHTML("afterbegin",html);
+  })();
+  (function buildOso(){
+    var o=$("#oso"), html="", on=[0,1,2,3,5,6,7,8,9,11,12,13,15,16,17,18,20,22];
+    for(var i=0;i<24;i++) html+='<i class="'+(on.indexOf(i)>-1?"on":"")+'"></i>';
+    o.innerHTML=html;
+  })();
+  var SAIL=[["≤2","I","II","IV","VI"],["3","II","II","IV","VI"],["4","III","III","IV","VI"],["5","IV","IV","IV","VI"],["6","V","V","V","VI"],["7","VI","VI","VI","VI"]];
+  var LEVEL={"I":1,"II":2,"III":3,"IV":4,"V":5,"VI":6};
+  (function buildMatrix(){
+    var m=$("#mx"), html='<div class="h" role="columnheader">GRC</div>';
+    ["ARC-a","ARC-b","ARC-c","ARC-d"].forEach(function(a,i){html+='<div class="h col" data-c="'+i+'" role="columnheader">'+a+'</div>';});
+    SAIL.forEach(function(r,ri){
+      html+='<div class="h row" data-r="'+ri+'" role="rowheader">'+r[0]+'</div>';
+      for(var c=1;c<5;c++) html+='<div class="c s'+LEVEL[r[c]]+'" data-r="'+ri+'" data-c="'+(c-1)+'" role="cell">'+r[c]+'</div>';
+    });
+    m.innerHTML=html;
+  })();
+
+  /* ---------- scrub canvas ---------- */
+  var canvas=$("#scrub-canvas"), ctx=canvas.getContext("2d"), imgs=FRAMES.map(function(src){var im=new Image();im.decoding="async";im.src=src;return im;});
+  var curFrame=-1;
+  function sizeCanvas(){var dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(canvas.clientWidth*dpr);canvas.height=Math.round(canvas.clientHeight*dpr);curFrame=-1;}
+  function drawFrame(i){
+    i=Math.max(0,Math.min(imgs.length-1,i));
+    var im=imgs[i]; if(!im.complete||!im.naturalWidth){im.onload=function(){if(i===curFrame||curFrame===-1)drawFrame(i);};return;}
+    if(i===curFrame) return; curFrame=i;
+    var cw=canvas.width, ch=canvas.height, s=Math.max(cw/im.naturalWidth,ch/im.naturalHeight), w=im.naturalWidth*s, h=im.naturalHeight*s;
+    ctx.drawImage(im,(cw-w)/2,(ch-h)/2,w,h);
+  }
+  sizeCanvas(); drawFrame(0);
+  addEventListener("resize",function(){var f=curFrame<0?0:curFrame;sizeCanvas();drawFrame(f);});
+
+  /* ---------- final states (reduced motion / no gsap) ---------- */
+  function finalStates(){
+    $$(".tick").forEach(function(t){t.style.background=OK;t.style.borderColor=OK;$("svg",t).style.cssText="opacity:1;transform:none";});
+    $(".b-draft").style.cssText="opacity:0;visibility:hidden"; $(".b-done").style.cssText="opacity:1;visibility:visible";
+    drawFrame(Math.round(imgs.length*0.5));
+    $$(".scrub-cap").forEach(function(c,i){c.style.cssText="opacity:1;visibility:visible;position:relative";});
+    var hit=$('#mx .c[data-r="2"][data-c="1"]'); hit.classList.add("hit");
+    $('#mx .h.row[data-r="2"]').classList.add("hl"); $('#mx .h.col[data-c="1"]').classList.add("hl");
+    $$("#demo [data-pick]").forEach(function(o){o.classList.add("sel");});
+    $("#result").style.cssText="opacity:1;visibility:visible;transform:none";
+    $("#replay").hidden=true;
+  }
+  function stepsByObserver(){
+    var steps=$$(".step"), svs=$$(".sv");
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){var i=+e.target.dataset.i;steps.forEach(function(s){s.classList.toggle("is-active",+s.dataset.i===i);});svs.forEach(function(v){v.classList.toggle("is-active",+v.dataset.i===i);});}});},{rootMargin:"-45% 0px -45% 0px"});
+    steps.forEach(function(s){io.observe(s);});
+  }
+
+  var isNarrow=matchMedia("(max-width: 899px)").matches;
+  if(isNarrow){
+    var stepEls=$$(".step");
+    $$(".sv").forEach(function(v,i){
+      var c=v.cloneNode(true); c.classList.add("sv-inline","is-active","panel"); c.removeAttribute("data-i");
+      $$("[id]",c).forEach(function(e){e.removeAttribute("id");});
+      stepEls[i].appendChild(c);
+    });
+  }
+
+  if(!hasGsap||reduce){ finalStates(); if(!isNarrow) stepsByObserver(); return; }
+
+  gsap.registerPlugin(ScrollTrigger,MotionPathPlugin);
+  var lenis=null;
+  if(window.Lenis){try{lenis=new Lenis({lerp:.1,smoothWheel:true});lenis.on("scroll",ScrollTrigger.update);gsap.ticker.add(function(t){lenis.raf(t*1000);});gsap.ticker.lagSmoothing(0);}catch(e){lenis=null;}}
+
+  /* hero intro */
+  gsap.timeline({delay:.15})
+    .from(".h1 .line > span",{yPercent:110,duration:1.15,ease:"expo.out",stagger:.09})
+    .from(".hero .lead, .hero .cta-row, .hero .fineprint",{autoAlpha:0,y:14,duration:.8,ease:"power3.out",stagger:.08},"-=.75")
+    .from(".layers",{autoAlpha:0,y:40,duration:1,ease:"power3.out"},"-=.6");
+
+  /* ===== 1. video layers ===== */
+  (function(){
+    var stage=$("#layers-stage"), vf=$(".vframe"), card=$(".appcard"), rows=$$(".ac-rows li"), caps=$$("#s-hero .caption span");
+    function tickTo(tl,li,at){tl.to($(".tick",li),{backgroundColor:OK,borderColor:OK,duration:.15},at).to($(".tick svg",li),{autoAlpha:1,scale:1,duration:.15},at+.03);}
+    var mm=gsap.matchMedia();
+    mm.add("(min-width: 900px)",function(){
+      gsap.set(card,{autoAlpha:0,xPercent:12}); gsap.set(rows,{autoAlpha:.25});
+      gsap.set(caps,{autoAlpha:0,y:8}); gsap.set(caps[0],{autoAlpha:1,y:0});
+      var tl=gsap.timeline({defaults:{ease:"none"},scrollTrigger:{trigger:stage,start:"top top",end:"+=3200",pin:true,scrub:.4,anticipatePin:1,invalidateOnRefresh:true}});
+      tl.to(vf,{width:"50%",top:"7%",height:"86%",duration:1,ease:"power2.inOut"},.2)
+        .to(card,{autoAlpha:1,xPercent:0,duration:.6,ease:"power2.out"},.75)
+        .to(caps[0],{autoAlpha:0,y:-8,duration:.2},.7).to(caps[1],{autoAlpha:1,y:0,duration:.2},.8);
+      rows.forEach(function(li,i){var at=1.35+i*.22;tl.to(li,{autoAlpha:1,duration:.12},at);if(i<4)tickTo(tl,li,at+.08);});
+      tl.to(vf,{left:"50%",duration:1,ease:"power2.inOut"},2.6)
+        .to(card,{left:"0%",duration:1,ease:"power2.inOut"},2.6)
+        .to(caps[1],{autoAlpha:0,y:-8,duration:.2},2.6).to(caps[2],{autoAlpha:1,y:0,duration:.2},2.7);
+      tickTo(tl,rows[4],3.5);
+      tl.to(".b-draft",{autoAlpha:0,duration:.15},3.65).to(".b-done",{autoAlpha:1,duration:.15},3.7).to({},{duration:.9});
+    });
+    mm.add("(max-width: 899px)",function(){
+      gsap.set(rows,{autoAlpha:.3});
+      var tl=gsap.timeline({defaults:{ease:"none"},scrollTrigger:{trigger:card,start:"top 85%",end:"bottom 55%",scrub:.4}});
+      rows.forEach(function(li,i){tl.to(li,{autoAlpha:1,duration:.25},i*.25);tickTo(tl,li,i*.25+.1);});
+      tl.to(".b-draft",{autoAlpha:0,duration:.2}).to(".b-done",{autoAlpha:1,duration:.2},"<");
+    });
+  })();
+
+  /* ===== 2. scrub ===== */
+  (function(){
+    var caps=$$(".scrub-cap"), bar=$(".scrub-bar i"), active=0;
+    function setCap(i){if(i===active)return;gsap.to(caps[active],{autoAlpha:0,y:-6,duration:.25});gsap.fromTo(caps[i],{autoAlpha:0,y:8},{autoAlpha:1,y:0,duration:.35});active=i;}
+    var st={f:0};
+    ScrollTrigger.create({trigger:"#scrub-stage",start:"top top",end:"+=2400",pin:true,scrub:true,anticipatePin:1,invalidateOnRefresh:true,
+      onUpdate:function(self){
+        var p=self.progress;
+        gsap.to(st,{f:p*(imgs.length-1),duration:.25,ease:"power1.out",overwrite:true,onUpdate:function(){drawFrame(Math.round(st.f));}});
+        bar.style.transform="scaleX("+p.toFixed(4)+")";
+        setCap(p<.38?0:p<.68?1:2);
+      }});
+  })();
+
+  /* ===== 3. steps ===== */
+  (function(){
+    var steps=$$(".step"), svs=$$(".sv");
+    function setStep(i){steps.forEach(function(s){s.classList.toggle("is-active",+s.dataset.i===i);});svs.forEach(function(v){v.classList.toggle("is-active",+v.dataset.i===i);});}
+    if(isNarrow){
+      $$(".step .sv-inline").forEach(function(v){gsap.from(v,{autoAlpha:0,y:24,duration:.6,ease:"power2.out",scrollTrigger:{trigger:v,start:"top 85%",once:true}});});
+      return;
+    }
+    steps.forEach(function(s){
+      ScrollTrigger.create({trigger:s,start:"top 55%",end:"bottom 55%",onToggle:function(self){if(self.isActive)setStep(+s.dataset.i);}});
+    });
+  })();
+
+  /* ===== 4. map ===== */
+  (function(){
+    var line=$("#route-line"), drone=$("#drone"), vols=[$(".vol1"),$(".vol2"),$(".vol3")], lbls=[$(".g1"),$(".g2"),$(".g3")], caps=$$("#s-map .caption span");
+    var L=line.getTotalLength(); var W=[38,86,150];
+    function initial(){
+      gsap.set(line,{strokeDasharray:"2 7",attr:{"stroke-dashoffset":0}});
+      gsap.set(vols,{attr:{"stroke-width":0}}); gsap.set(lbls,{autoAlpha:0});
+      gsap.set(drone,{x:0,y:0});
+    }
+    var mask=document.createElementNS("http://www.w3.org/2000/svg","path");
+    function routeReveal(){ // use a clip by dashing a solid copy
+      line.style.strokeDasharray=L+" "+L; line.style.strokeDashoffset=L;
+    }
+    var mm=gsap.matchMedia();
+    function build(tl,scrub){
+      tl.to(line,{strokeDashoffset:0,duration:1.2},0)
+        .to(drone,{motionPath:{path:"#route-line",align:"#route-line",alignOrigin:[.5,.5],autoRotate:false},duration:1.2},0);
+      vols.forEach(function(v,i){tl.to(v,{attr:{"stroke-width":W[i]},duration:.55,ease:"power2.out"},1.35+i*.4);tl.to(lbls[i],{autoAlpha:1,duration:.3},1.6+i*.4);});
+      tl.set(line,{strokeDasharray:"2 7",strokeDashoffset:0},2.6);
+      if(scrub){tl.to(caps[0],{autoAlpha:0,y:-8,duration:.2},1.25).to(caps[1],{autoAlpha:1,y:0,duration:.2},1.35).to(caps[1],{autoAlpha:0,y:-8,duration:.2},2.25).to(caps[2],{autoAlpha:1,y:0,duration:.2},2.35).to({},{duration:.9});}
+    }
+    mm.add("(min-width: 900px)",function(){
+      initial(); routeReveal();
+      gsap.set(caps,{autoAlpha:0,y:8}); gsap.set(caps[0],{autoAlpha:1,y:0});
+      var tl=gsap.timeline({defaults:{ease:"none"},scrollTrigger:{trigger:"#map-stage",start:"top top",end:"+=2600",pin:true,scrub:.4,anticipatePin:1,invalidateOnRefresh:true}});
+      build(tl,true);
+    });
+    mm.add("(max-width: 899px)",function(){
+      initial(); routeReveal();
+      var tl=gsap.timeline({defaults:{ease:"none"},scrollTrigger:{trigger:".map-panel",start:"top 80%",end:"bottom 45%",scrub:.4}});
+      build(tl,false);
+    });
+  })();
+
+  /* ===== 5. matrix ===== */
+  (function(){
+    var cells=$$("#mx .c"), heads=$$("#mx .h"), hit=$('#mx .c[data-r="2"][data-c="1"]');
+    gsap.set(cells,{autoAlpha:0,scale:.85}); gsap.set(".mx-result span",{autoAlpha:0,y:8});
+    var mxTl=gsap.timeline({scrollTrigger:{trigger:"#mx",start:"top 70%",toggleActions:"play none none reverse"}});
+    mxTl.to(cells,{autoAlpha:1,scale:1,duration:.4,ease:"power2.out",stagger:{each:.035,grid:[6,4],from:"start"}})
+      .add(function(){$('#mx .h.row[data-r="2"]').classList.toggle("hl",mxTl.reversed()===false);},"+=.2")
+      .add(function(){$('#mx .h.col[data-c="1"]').classList.toggle("hl",mxTl.reversed()===false);},"+=.35")
+      .add(function(){hit.classList.toggle("hit",mxTl.reversed()===false);},"+=.35")
+      .to(".mx-result span",{autoAlpha:1,y:0,duration:.4,stagger:.12,ease:"power2.out"},"+=.1");
+  })();
+
+  /* ===== 6. live demo ===== */
+  (function(){
+    var demo=$("#demo"), cursor=$("#cursor"), picks=$$("#demo [data-pick]"), go=$("#go"), result=$("#result"), replay=$("#replay"), tl=null;
+    function pos(el){var d=demo.getBoundingClientRect(), r=el.getBoundingClientRect();return {x:r.left-d.left+r.width*.55,y:r.top-d.top+r.height*.55};}
+    function reset(){picks.forEach(function(p){p.classList.remove("sel");});gsap.set(result,{autoAlpha:0,y:20});gsap.set(cursor,{autoAlpha:0,x:demo.clientWidth*.8,y:demo.clientHeight*.15,scale:1});}
+    function play(){
+      if(tl) tl.kill(); reset();
+      tl=gsap.timeline();
+      tl.to(cursor,{autoAlpha:1,duration:.3});
+      picks.forEach(function(p){
+        tl.to(cursor,{x:function(){return pos(p).x;},y:function(){return pos(p).y;},duration:.7,ease:"power2.inOut"})
+          .to(cursor,{scale:.82,duration:.08}).add(function(){p.classList.add("sel");}).to(cursor,{scale:1,duration:.12}).to({}, {duration:.15});
+      });
+      tl.to(cursor,{x:function(){return pos(go).x;},y:function(){return pos(go).y;},duration:.7,ease:"power2.inOut"})
+        .to(cursor,{scale:.82,duration:.08}).to(go,{scale:.97,duration:.08},"<").to([cursor,go],{scale:1,duration:.12})
+        .to(result,{autoAlpha:1,y:0,duration:.5,ease:"power3.out"},"+=.15")
+        .to(cursor,{autoAlpha:0,duration:.3},"<");
+    }
+    reset();
+    ScrollTrigger.create({trigger:demo,start:"top 60%",once:true,onEnter:play});
+    replay.addEventListener("click",play);
+  })();
+
+  /* header adapts to light sections */
+  $$(".theme-light").forEach(function(sec){
+    ScrollTrigger.create({trigger:sec,start:"top 48px",end:"bottom 48px",toggleClass:{targets:".site-header",className:"on-light"}});
+  });
+
+  /* switcher (created last so pin spacing is known) */
+  var links=$$(".switcher a");
+  function setActive(id){links.forEach(function(a){a.classList.toggle("is-active",a.dataset.t===id);});}
+  links.forEach(function(a){
+    ScrollTrigger.create({trigger:"#"+a.dataset.t,start:"top 50%",end:"bottom 50%",onToggle:function(s){if(s.isActive)setActive(a.dataset.t);}});
+    a.addEventListener("click",function(e){var t=document.getElementById(a.dataset.t);if(!t)return;e.preventDefault();if(lenis)lenis.scrollTo(t,{duration:1.4});else t.scrollIntoView({behavior:"smooth"});});
+  });
+  $$('a[href^="#s-"], a[href="#top"]').forEach(function(a){if(a.closest(".switcher"))return;a.addEventListener("click",function(e){var t=document.querySelector(a.getAttribute("href"));if(!t)return;e.preventDefault();if(lenis)lenis.scrollTo(t,{duration:1.4});else t.scrollIntoView({behavior:"smooth"});});});
+
+  /* recalculate positions once everything that can change layout has loaded (cold-load bug) */
+  ScrollTrigger.config({ignoreMobileResize:true});
+  var refreshSoon=(function(){var t;return function(){clearTimeout(t);t=setTimeout(function(){ScrollTrigger.refresh();},120);};})();
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(refreshSoon);
+  var vid=$(".vframe video"); if(vid){vid.addEventListener("loadedmetadata",refreshSoon);vid.addEventListener("loadeddata",refreshSoon);}
+  addEventListener("load",function(){sizeCanvas();drawFrame(0);refreshSoon();});
+  if("ResizeObserver" in window){var lastH=0;new ResizeObserver(function(){var h=document.body.scrollHeight;if(Math.abs(h-lastH)>4){lastH=h;refreshSoon();}}).observe(document.body);}
+  window.__lab={ScrollTrigger:ScrollTrigger};
+})();
+</script>
+</body>
+</html>

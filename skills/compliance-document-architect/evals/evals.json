@@ -1,0 +1,29 @@
+{
+  "skill_name": "compliance-document-architect",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I need to draft the crew fatigue management section for our OM-A. We're an EASA AOC holder operating short-haul with mixed fleet (A320/B737). Cover FTL compliance, fatigue reporting, and fatigue risk management.",
+      "expected_output": "A structured OM-A chapter section covering FTL compliance, fatigue reporting procedures, and FRMS elements, with inline regulation references, role assignments, and a compliance matrix with verification/evidence column.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Here's our ConOps: we're planning a drone delivery service using multi-rotor UAS (MTOM 8kg) operating BVLOS over sparsely populated areas in the Netherlands. Flights will be automated with a remote pilot monitoring up to 3 aircraft. Help me identify the applicable SORA requirements and draft the initial safety case sections.",
+      "expected_output": "Derived SORA requirements from the ConOps (GRC/ARC, OSOs, containment), structured safety case sections following SORA methodology, and a compliance matrix mapping OSOs to mitigations with verification evidence.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "We're a chemical manufacturing plant and need to draft the incident investigation procedure section of our safety management manual. We need to comply with ISO 45001 clause 10.2. Include the investigation workflow, roles, root cause analysis requirements, and corrective action tracking.",
+      "expected_output": "A formal procedure section for incident investigation compliant with ISO 45001:2018 clause 10.2, with investigation workflow steps, role assignments, root cause analysis methodology, corrective action tracking, and a compliance matrix.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "We are preparing for an EASA audit and need a compliance matrix for ORO.GEN.200 Management System requirements. Create a compliance mapping that links each requirement to our documented procedures, identifies the relevant manual section, and specifies the verification evidence (records, reports, or audits).",
+      "expected_output": "A detailed compliance matrix covering all sub-paragraphs of ORO.GEN.200, with columns for Requirement, Reference, Document Section, Implementation Method, Verification/Evidence, and Status. Should break down ORO.GEN.200 into discrete obligations and provide realistic procedure references and evidence artifacts.",
+      "files": []
+    }
+  ]
+}

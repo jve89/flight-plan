@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Drone 3D lab, four styles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --font:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --wrap:72rem; --gutter:clamp(1.25rem,4vw,2rem); --section-y:clamp(4.5rem,10vw,8rem);
+  --bg:#07090d; --raised:#0c1017; --line:#1b222d; --line-soft:rgba(244,246,250,.08);
+  --ink:#f4f6fa; --ink-2:#c3ccd8; --muted:#97a2b2; --accent:#1f5eff; --accent-hover:#1a4fd6; --accent-text:#7ea4ff;
+  --glass:rgba(9,12,18,.62); --glass-line:rgba(244,246,250,.13); --ghost-line:rgba(244,246,250,.24);
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);line-height:1.6;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent-text);outline-offset:3px;border-radius:6px}
+.theme-clay{--bg:#f3eee8;--raised:#fffaf4;--line:#e4dbd0;--ink:#2a211b;--ink-2:#5a4c40;--muted:#7a6a5c;--accent:#ff8a4c;--accent-text:#c95a1f;--ghost-line:rgba(42,33,27,.2)}
+.theme-tech{--bg:#050b18;--raised:#081227;--line:#132242}
+.theme-clay,.theme-tech{background:var(--bg);color:var(--ink)}
+
+/* header */
+.site-header{position:fixed;inset-inline:0;top:calc(env(safe-area-inset-top,0px) + 1rem);z-index:60;padding-inline:var(--gutter);pointer-events:none}
+.pill{pointer-events:auto;max-width:var(--wrap);margin:0 auto;display:flex;align-items:center;gap:1.5rem;padding:.45rem .45rem .45rem 1.35rem;border-radius:999px;background:var(--raised);border:1px solid var(--glass-line);transition:background-color .35s,border-color .35s}
+@supports (backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px)){.pill{background:var(--glass);-webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%)}}
+.brand{font-weight:800;letter-spacing:-.035em;font-size:1.08rem;color:var(--ink);text-decoration:none;white-space:nowrap;transition:color .35s}
+.pill-links{display:flex;gap:1.6rem;list-style:none;margin:0 0 0 .5rem;padding:0}
+.pill-links a{color:var(--muted);font-size:.9rem;font-weight:500;text-decoration:none;transition:color .35s}
+.pill-links a:hover{color:var(--ink)}
+.pill-actions{margin-left:auto}
+.site-header.on-light .pill{background:rgba(255,250,244,.8);border-color:rgba(42,33,27,.1)}
+.site-header.on-light .brand{color:#2a211b}
+.site-header.on-light .pill-links a{color:#7a6a5c}
+
+/* buttons, type */
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 1.45rem;border-radius:999px;font-weight:650;font-size:.97rem;letter-spacing:-.01em;text-decoration:none;border:1px solid transparent;cursor:pointer;font-family:inherit;transition:transform .2s,background-color .2s,border-color .2s}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent-hover)}
+.btn-ghost{background:transparent;border-color:var(--ghost-line);color:var(--ink)}
+.btn-sm{min-height:40px;padding:0 1.1rem;font-size:.88rem}
+.h1{font-size:clamp(2.55rem,1.5rem + 4.7vw,5.2rem);font-weight:800;letter-spacing:-.045em;line-height:1.02;margin:0 auto;max-width:15ch;text-wrap:balance}
+.h1 .line{display:block;overflow:hidden;padding-bottom:.09em;margin-bottom:-.09em}
+.h1 .line>span{display:block;text-wrap:balance}
+.h2{font-size:clamp(1.9rem,1.3rem + 2.6vw,3.2rem);font-weight:800;letter-spacing:-.038em;line-height:1.08;margin:0;text-wrap:balance}
+.lead{font-size:clamp(1.05rem,1rem + .35vw,1.22rem);line-height:1.55;color:var(--ink-2);max-width:42ch;margin:1.1rem auto 0;text-wrap:pretty}
+.sec{padding:var(--section-y) var(--gutter) 2rem}
+.sec-head{max-width:var(--wrap);margin:0 auto;text-align:center}
+.poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:1;transition:opacity .6s}
+.is-ready .poster{opacity:0}
+canvas.gl{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y}
+
+/* A: realistic hero */
+.a-pin{position:relative;height:100vh;height:100svh;min-height:560px;overflow:hidden}
+.a-pin .poster{object-fit:contain;object-position:50% 78%;padding:28vh 4vw 0}
+.a-copy{position:relative;z-index:3;text-align:center;padding:8.5rem var(--gutter) 0;pointer-events:none}
+.a-copy .cta-row{pointer-events:auto}
+.cta-row{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;margin-top:1.8rem}
+.labels{position:absolute;inset:0;z-index:2;pointer-events:none}
+.lbl{position:absolute;left:0;top:0;opacity:0;will-change:transform}
+.lbl i{position:absolute;left:-4px;top:-4px;width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 0 4px rgba(126,164,255,.35)}
+.lbl span{position:absolute;left:12px;top:-14px;white-space:nowrap;font-size:.8rem;font-weight:650;padding:.32rem .65rem;border-radius:999px;background:rgba(7,9,13,.72);border:1px solid var(--glass-line);color:var(--ink);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.lbl.left span{left:auto;right:12px}
+@media (max-width:899px){.lbl.desk-only{display:none}}
+.a-cap{position:absolute;left:0;right:0;bottom:5.5rem;z-index:3;text-align:center;padding:0 var(--gutter);pointer-events:none}
+.a-cap p{margin:0 auto;max-width:36ch;font-size:clamp(1.25rem,1rem + 1.2vw,1.85rem);font-weight:750;letter-spacing:-.035em;line-height:1.15;opacity:0;visibility:hidden}
+.a-cap p span{display:block;font-size:.98rem;font-weight:500;letter-spacing:-.01em;color:var(--muted);margin-top:.5rem}
+
+/* B: clay */
+.b-stage{position:relative;max-width:var(--wrap);height:min(70vh,640px);min-height:420px;margin:2.5rem auto 0;border-radius:28px;overflow:hidden;background:radial-gradient(120% 90% at 50% 30%,#fffaf4 0%,#f3eee8 70%)}
+.b-stage .poster{object-fit:contain;padding:10%}
+.b-hint{position:absolute;left:0;right:0;bottom:1.2rem;text-align:center;font-size:.86rem;font-weight:550;color:var(--muted);pointer-events:none}
+
+/* C + D: pinned frames */
+.f-stage{height:100vh;height:100svh;padding:5.75rem var(--gutter) 5rem;display:flex}
+.f-frame{position:relative;flex:1;max-width:var(--wrap);margin:0 auto;border-radius:24px;overflow:hidden;border:1px solid var(--line-soft);background:#05070a}
+.theme-tech .f-frame{background:radial-gradient(90% 80% at 50% 45%,#0b1a38 0%,#050b18 75%);border-color:#132242}
+.grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(126,164,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(126,164,255,.06) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}
+.caps{position:absolute;left:1.25rem;bottom:1.25rem;display:grid;max-width:min(24rem,calc(100% - 2.5rem));z-index:3}
+.cap{grid-area:1/1;padding:.95rem 1.1rem;border-radius:16px;background:rgba(7,9,13,.66);border:1px solid var(--glass-line);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.cap+.cap{opacity:0;visibility:hidden}
+.cap strong{display:block;font-size:1rem;font-weight:700;letter-spacing:-.015em}
+.cap span{display:block;font-size:.87rem;color:var(--ink-2);margin-top:.2rem;line-height:1.5}
+.bar{position:absolute;left:1.25rem;right:1.25rem;top:1.25rem;height:3px;border-radius:3px;background:rgba(255,255,255,.16);overflow:hidden;z-index:3}
+.bar i{display:block;height:100%;background:#fff;transform-origin:0 50%;transform:scaleX(0)}
+.d-canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+
+/* compare */
+.cmp{max-width:var(--wrap);margin:2.5rem auto 0;overflow-x:auto}
+.cmp table{width:100%;border-collapse:collapse;font-size:.95rem;min-width:640px}
+.cmp th,.cmp td{text-align:left;padding:.9rem 1rem;border-bottom:1px solid var(--line)}
+.cmp th{font-size:.84rem;font-weight:650;color:var(--muted)}
+.cmp td:first-child{font-weight:650}
+.foot{padding:2rem var(--gutter) 7rem;text-align:center;font-size:.84rem;color:var(--muted);border-top:1px solid var(--line)}
+
+/* switcher */
+.switcher{position:fixed;left:50%;bottom:calc(1rem + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:70;display:flex;gap:.15rem;padding:.3rem;border-radius:999px;background:rgba(14,16,20,.78);border:1px solid rgba(255,255,255,.12);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:0 12px 32px rgba(0,0,0,.3)}
+.switcher a{display:flex;align-items:center;gap:.4rem;min-height:40px;padding:0 .85rem;border-radius:999px;color:#c9ced6;font-size:.82rem;font-weight:600;text-decoration:none;white-space:nowrap;transition:background-color .2s,color .2s}
+.switcher a b{font-weight:800}
+.switcher a.is-active{background:#f3f4f6;color:#0b0c0f}
+
+@media (max-width:899px){
+  .pill-links{display:none}
+  .switcher a span{display:none}
+  .lbl span{font-size:.72rem;padding:.26rem .55rem}
+  .a-copy{padding-top:7.5rem}
+}
+@media (max-width:520px){.pill{padding-left:1.1rem}.brand{font-size:.98rem}}
+@media (prefers-reduced-motion:reduce){.btn,.poster{transition:none}.btn:hover{transform:none}}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <nav class="pill" aria-label="Main menu">
+    <a class="brand" href="#s-a">Drone Approval Support</a>
+    <ul class="pill-links"><li><a href="#s-b">Styles</a></li><li><a href="#s-d">Renders</a></li><li><a href="#s-cmp">Compare</a></li></ul>
+    <div class="pill-actions"><a class="btn btn-primary btn-sm" href="#s-cmp">Free check</a></div>
+  </nav>
+</header>
+
+<main>
+<!-- A: realistic, real-time, exploded view -->
+<section id="s-a" aria-label="Realistic real-time drone">
+  <div class="a-pin" id="a-pin">
+    <img class="poster" src="__POSTER__" alt="">
+    <canvas class="gl" id="gl-a" aria-label="Interactive 3D drone that comes apart while you scroll" role="img"></canvas>
+    <div class="labels" id="labels-a" aria-hidden="true"></div>
+    <div class="a-copy">
+      <h1 class="h1"><span class="line"><span>Know every part</span></span><span class="line"><span>of your drone.</span></span></h1>
+      <p class="lead">Your operations manual describes the aircraft in detail. Scroll to take it apart.</p>
+    </div>
+    <div class="a-cap"><p>Eighteen parts, one aircraft.<span>Each one appears somewhere in your technical documentation.</span></p></div>
+  </div>
+</section>
+
+<!-- B: stylised clay -->
+<section id="s-b" class="sec theme-clay" aria-label="Stylised drone">
+  <div class="sec-head">
+    <h2 class="h2">Or make it friendly.</h2>
+    <p class="lead">The same model with soft materials and a little personality. Move your cursor, or tap it.</p>
+  </div>
+  <div class="b-stage" id="b-stage">
+    <img class="poster" src="__POSTER__" alt="">
+    <canvas class="gl" id="gl-b" aria-label="Playful 3D drone that follows your cursor" role="img"></canvas>
+    <p class="b-hint">Tap the drone</p>
+  </div>
+</section>
+
+<!-- C: technical x-ray -->
+<section id="s-c" class="theme-tech" aria-label="Technical drone">
+  <div class="sec" style="padding-bottom:1rem">
+    <div class="sec-head">
+      <h2 class="h2">Or show what is inside.</h2>
+      <p class="lead">A technical view for engineering and compliance stories. Scroll to inspect each system.</p>
+    </div>
+  </div>
+  <div class="f-stage" id="c-stage">
+    <div class="f-frame">
+      <div class="grid-bg"></div>
+      <canvas class="gl" id="gl-c" aria-label="Wireframe drone highlighting one system at a time" role="img"></canvas>
+      <div class="bar"><i></i></div>
+      <div class="caps" aria-live="polite">
+        <div class="cap"><strong>Power</strong><span>The battery and its mounting. Capacity sets your endurance.</span></div>
+        <div class="cap"><strong>Propulsion</strong><span>Four motors and propellers. Redundancy is a design choice.</span></div>
+        <div class="cap"><strong>Navigation</strong><span>GPS on a mast, away from interference.</span></div>
+        <div class="cap"><strong>Payload</strong><span>A stabilised camera on a gimbal.</span></div>
+        <div class="cap"><strong>Flight controller</strong><span>The brain in the centre of the frame.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- D: pre-rendered -->
+<section id="s-d" aria-label="Pre-rendered drone">
+  <div class="sec" style="padding-bottom:1rem">
+    <div class="sec-head">
+      <h2 class="h2">Or render it like a product shot.</h2>
+      <p class="lead">Rendered in Blender with real light paths, then tied to your scroll. The visitor's device only shows images.</p>
+    </div>
+  </div>
+  <div class="f-stage" id="d-stage">
+    <div class="f-frame">
+      <canvas class="d-canvas" id="d-canvas" aria-label="Photoreal turntable of the drone, controlled by scrolling" role="img"></canvas>
+      <div class="bar"><i></i></div>
+    </div>
+  </div>
+</section>
+
+<section id="s-cmp" class="sec" aria-label="Comparison">
+  <div class="sec-head"><h2 class="h2">Four styles, one model.</h2><p class="lead">Which one fits depends on the site. All four start from the same Blender file.</p></div>
+  <div class="cmp">
+    <table>
+      <thead><tr><th>Style</th><th>Route</th><th>Download</th><th>Work for the device</th><th>Fits</th></tr></thead>
+      <tbody>
+        <tr><td>Realistic</td><td>Blender model, real-time</td><td>__GLB_KB__ KB model</td><td>Medium, lights and shadows</td><td>Products, hardware</td></tr>
+        <tr><td>Stylised</td><td>Same model, new materials</td><td>Same model</td><td>Medium</td><td>Apps, consumer, playful</td></tr>
+        <tr><td>Technical</td><td>Same model, edges only</td><td>Same model</td><td>Low</td><td>Tech, compliance, engineering</td></tr>
+        <tr><td>Pre-rendered</td><td>Blender Cycles renders</td><td>__FRAMES_KB__ KB images</td><td>Very low, images only</td><td>Hero shots where quality is everything</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+</main>
+<footer class="foot">3D lab. Model built and rendered with Blender scripts; real-time views with Three.js.</footer>
+
+<nav class="switcher" aria-label="Jump to style">
+  <a href="#s-a" data-t="s-a" class="is-active"><b>A</b><span>Realistisch</span></a>
+  <a href="#s-b" data-t="s-b"><b>B</b><span>Gestileerd</span></a>
+  <a href="#s-c" data-t="s-c"><b>C</b><span>Technisch</span></a>
+  <a href="#s-d" data-t="s-d"><b>D</b><span>Voorgerenderd</span></a>
+</nav>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/meshopt_decoder.js"></script>
+<script>
+var GLB_B64 = "__GLB__";
+var FRAMES = __FRAMES__;
+(function(){
+  "use strict";
+  var $=function(s,r){return (r||document).querySelector(s);};
+  var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));};
+  var reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var hasGsap=!!(window.gsap&&window.ScrollTrigger);
+  var narrow=function(){return innerWidth<900;};
+  var state={a:0,c:0};                 // scroll progress, set by ScrollTrigger (or static)
+  window.__lab3d={state:state};
+
+  /* ================= GSAP / scroll ================= */
+  var lenis=null;
+  if(hasGsap){
+    gsap.registerPlugin(ScrollTrigger);
+    ScrollTrigger.config({ignoreMobileResize:true});
+    if(!reduce&&window.Lenis){try{lenis=new Lenis({lerp:.1,smoothWheel:true});lenis.on("scroll",ScrollTrigger.update);gsap.ticker.add(function(t){lenis.raf(t*1000);});gsap.ticker.lagSmoothing(0);}catch(e){lenis=null;}}
+  }
+  if(!hasGsap||reduce){
+    state.a=1; state.c=0;
+    $(".a-copy").style.cssText="position:relative;z-index:3";
+    $(".a-cap p").style.cssText="opacity:1;visibility:visible";
+  } else {
+    gsap.from(".h1 .line > span",{yPercent:110,duration:1.15,ease:"expo.out",stagger:.09,delay:.1});
+    gsap.from(".a-copy .lead",{autoAlpha:0,y:14,duration:.8,ease:"power3.out",delay:.5});
+    gsap.timeline({defaults:{ease:"none"},scrollTrigger:{trigger:"#a-pin",start:"top top",end:"+=2400",pin:true,scrub:.4,anticipatePin:1,invalidateOnRefresh:true}})
+      .to(state,{a:1,duration:1},0.05)
+      .to(".a-copy",{autoAlpha:0,y:-40,duration:.25},0.05)
+      .to(".a-cap p",{autoAlpha:1,y:0,duration:.2},0.75)
+      .to({},{duration:.3});
+    gsap.set(".a-cap p",{y:14});
+    // C
+    var ccaps=$$("#s-c .cap"), cact=0, cbar=$("#s-c .bar i");
+    ScrollTrigger.create({trigger:"#c-stage",start:"top top",end:"+=2600",pin:true,scrub:true,anticipatePin:1,invalidateOnRefresh:true,onUpdate:function(self){
+      state.c=self.progress; cbar.style.transform="scaleX("+self.progress.toFixed(4)+")";
+      var i=Math.min(4,Math.floor(self.progress*5)); if(i!==cact){gsap.to(ccaps[cact],{autoAlpha:0,y:-6,duration:.25});gsap.fromTo(ccaps[i],{autoAlpha:0,y:8},{autoAlpha:1,y:0,duration:.35});cact=i;}
+    }});
+  }
+
+  /* ================= D: pre-rendered frames ================= */
+  (function(){
+    var cv=$("#d-canvas"), ctx=cv.getContext("2d"), bar=$("#s-d .bar i"), cur=-1;
+    var imgs=FRAMES.map(function(s){var i=new Image();i.decoding="async";i.src=s;return i;});
+    function size(){var d=Math.min(devicePixelRatio||1,2);cv.width=Math.round(cv.clientWidth*d);cv.height=Math.round(cv.clientHeight*d);cur=-1;}
+    function draw(i){i=Math.max(0,Math.min(imgs.length-1,i));var im=imgs[i];if(!im.complete||!im.naturalWidth){im.onload=function(){cur=-1;draw(i);};return;}if(i===cur)return;cur=i;
+      ctx.fillStyle="#07090d";ctx.fillRect(0,0,cv.width,cv.height);
+      var s=Math.min(cv.width/im.naturalWidth,cv.height/im.naturalHeight)*1.0, w=im.naturalWidth*s, h=im.naturalHeight*s;
+      if(cv.width/cv.height>im.naturalWidth/im.naturalHeight){s=cv.width/im.naturalWidth;w=im.naturalWidth*s;h=im.naturalHeight*s;}
+      ctx.drawImage(im,(cv.width-w)/2,(cv.height-h)/2,w,h);}
+    size(); draw(0); addEventListener("resize",function(){var c=cur<0?0:cur;size();draw(c);});
+    if(hasGsap&&!reduce){
+      var st={f:0};
+      ScrollTrigger.create({trigger:"#d-stage",start:"top top",end:"+=2400",pin:true,scrub:true,anticipatePin:1,invalidateOnRefresh:true,onUpdate:function(self){
+        gsap.to(st,{f:self.progress*(imgs.length-1),duration:.25,overwrite:true,onUpdate:function(){draw(Math.round(st.f));}});
+        bar.style.transform="scaleX("+self.progress.toFixed(4)+")";}});
+    } else { draw(Math.round(imgs.length*.15)); }
+  })();
+
+  /* header on light, switcher (created after pins) */
+  if(hasGsap){
+    ScrollTrigger.create({trigger:"#s-b",start:"top 48px",end:"bottom 48px",toggleClass:{targets:".site-header",className:"on-light"}});
+    var links=$$(".switcher a");
+    links.forEach(function(a){
+      ScrollTrigger.create({trigger:"#"+a.dataset.t,start:"top 50%",end:"bottom 50%",onToggle:function(s){if(s.isActive)links.forEach(function(l){l.classList.toggle("is-active",l===a);});}});
+      a.addEventListener("click",function(e){var t=document.getElementById(a.dataset.t);e.preventDefault();if(lenis)lenis.scrollTo(t,{duration:1.4});else t.scrollIntoView({behavior:"smooth"});});
+    });
+    var refreshSoon=(function(){var t;return function(){clearTimeout(t);t=setTimeout(function(){ScrollTrigger.refresh();},120);};})();
+    if(document.fonts&&document.fonts.ready)document.fonts.ready.then(refreshSoon);
+    addEventListener("load",refreshSoon);
+  }
+
+  /* ================= THREE ================= */
+  if(!window.THREE||!THREE.GLTFLoader){return;}
+  function b64ToBuf(b){var s=atob(b),n=s.length,u=new Uint8Array(n);for(var i=0;i<n;i++)u[i]=s.charCodeAt(i);return u.buffer;}
+
+  function makeRenderer(canvas,opts){
+    var r;
+    try{r=new THREE.WebGLRenderer({canvas:canvas,antialias:true,alpha:true});}catch(e){return null;}
+    r.setPixelRatio(Math.min(devicePixelRatio||1,1.5));
+    r.outputEncoding=THREE.sRGBEncoding;
+    r.toneMapping=THREE.ACESFilmicToneMapping; r.toneMappingExposure=opts&&opts.exposure||1;
+    r.physicallyCorrectLights=true;
+    if(opts&&opts.shadows){r.shadowMap.enabled=true;r.shadowMap.type=THREE.PCFSoftShadowMap;}
+    return r;
+  }
+  // studio environment for reflections, built from simple light panels (no HDR file needed)
+  function studioEnv(renderer,warm){
+    var env=new THREE.Scene();
+    env.add(new THREE.Mesh(new THREE.BoxGeometry(12,12,12),new THREE.MeshBasicMaterial({color:warm?0xc9bfb4:0x101318,side:THREE.BackSide})));
+    function panel(w,h,pos,col){var m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({color:col,side:THREE.DoubleSide}));m.position.copy(pos);m.lookAt(0,0,0);env.add(m);}
+    panel(5,3,new THREE.Vector3(3,4,3),0xffffff); panel(4,2,new THREE.Vector3(-4,2,-3),warm?0xffe6cf:0x9db8ff); panel(6,2,new THREE.Vector3(0,-1,5),warm?0xfff4ea:0x5a6270);
+    var pm=new THREE.PMREMGenerator(renderer); var t=pm.fromScene(env,0.04).texture; pm.dispose(); return t;
+  }
+  function sizeTo(renderer,camera,canvas){var w=canvas.clientWidth,h=canvas.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
+  // frame-rate independent smoothing: same feel at 30 or 120 fps, and on slow devices
+  function damp(cur,target,lambda,dt){return cur+(target-cur)*(1-Math.exp(-lambda*dt));}
+  function visibleLoop(el,tick){var on=false,raf=0,last=0;function loop(t){raf=requestAnimationFrame(loop);var s=t/1000,dt=last?Math.min(.1,s-last):1/60;last=s;tick(s,dt);}
+    new IntersectionObserver(function(e){var v=e[0].isIntersecting;if(v&&!on){on=true;last=0;raf=requestAnimationFrame(loop);}else if(!v&&on){on=false;cancelAnimationFrame(raf);}},{rootMargin:"0px"}).observe(el);}
+  function groundShadow(opacity){var g=new THREE.Mesh(new THREE.PlaneGeometry(20,20),new THREE.ShadowMaterial({opacity:opacity}));g.rotation.x=-Math.PI/2;g.position.y=-0.14;g.receiveShadow=true;return g;}
+  function keyLight(color,intensity){var l=new THREE.DirectionalLight(color,intensity);l.position.set(1.5,3,2);l.castShadow=true;l.shadow.mapSize.set(1024,1024);var c=l.shadow.camera;c.left=-1.2;c.right=1.2;c.top=1.2;c.bottom=-1.2;c.near=.5;c.far=8;l.shadow.radius=5;l.shadow.bias=-0.0004;return l;}
+
+  var loader=new THREE.GLTFLoader();
+  if(window.MeshoptDecoder) loader.setMeshoptDecoder(MeshoptDecoder);
+  var ready=window.MeshoptDecoder&&MeshoptDecoder.ready?MeshoptDecoder.ready:Promise.resolve();
+  ready.then(function(){
+    loader.parse(b64ToBuf(GLB_B64),"",function(gltf){
+      var only=(location.search.match(/only=(\w)/)||[])[1];
+      if(!only||only==="a")setupA(gltf.scene.clone(true));
+      if(!only||only==="b")setupB(gltf.scene.clone(true));
+      if(!only||only==="c")setupC(gltf.scene.clone(true));
+      if(hasGsap) ScrollTrigger.refresh();
+    },function(err){console.error("GLB parse failed",err);});
+  });
+
+  // Parts can arrive as a Mesh (one material) or a Group of Meshes (several materials): match by name, topmost wins.
+  function partsOf(model){var map={};model.traverse(function(o){var n=o.name;if(!map[n]&&/^(body|cover|battery|gps|gear|camera|arm_\d|motor_\d|prop_\d)$/.test(n))map[n]=o;});return map;}
+  function centerModel(model){var box=new THREE.Box3().setFromObject(model),c=box.getCenter(new THREE.Vector3());model.position.sub(new THREE.Vector3(c.x,0,c.z));return box;}
+
+  /* ---------- A: realistic ---------- */
+  function setupA(model){
+    var canvas=$("#gl-a"), r=makeRenderer(canvas,{shadows:true,exposure:1.45}); if(!r)return;
+    var scene=new THREE.Scene(), cam=new THREE.PerspectiveCamera(30,1,.05,50);
+    scene.environment=studioEnv(r,false);
+    scene.add(new THREE.HemisphereLight(0xdfe7ff,0x0b0c0f,.6)); scene.add(keyLight(0xffffff,2.6));
+    var rim=new THREE.DirectionalLight(0x9db8ff,2.2); rim.position.set(-2,1.2,-2); scene.add(rim);
+    scene.add(groundShadow(.45));
+    model.traverse(function(o){if(o.isMesh){o.castShadow=true;o.receiveShadow=true;if(o.material)o.material.envMapIntensity=1.6;}});
+    centerModel(model); var rig=new THREE.Group(); rig.add(model); scene.add(rig);
+    var parts=partsOf(model), base={}; window.__lab3d.partsA=Object.keys(parts);
+    Object.keys(parts).forEach(function(k){base[k]=parts[k].position.clone();});
+    function explodeVec(k){var p=base[k],out=new THREE.Vector3(p.x,0,p.z);if(out.lengthSq()>1e-6)out.normalize();
+      if(k==="body")return new THREE.Vector3();
+      if(k==="cover")return new THREE.Vector3(0,.14,0);
+      if(k==="battery")return new THREE.Vector3(0,.28,0);
+      if(k==="gps")return new THREE.Vector3(0,.4,0).add(out.multiplyScalar(.05));
+      if(k==="gear")return new THREE.Vector3(0,-.16,0);
+      if(k==="camera")return out.multiplyScalar(.12).add(new THREE.Vector3(0,-.12,0));
+      if(/^prop/.test(k))return out.multiplyScalar(.14).add(new THREE.Vector3(0,.26,0));
+      if(/^motor/.test(k))return out.multiplyScalar(.14).add(new THREE.Vector3(0,.1,0));
+      if(/^arm/.test(k))return out.multiplyScalar(.07);
+      return new THREE.Vector3();}
+    var LBL=[["prop_1","Propellers",0],["motor_2","Motors",1],["arm_3","Arms",0],["battery","Battery",1],["gps","GPS",1],["body","Flight controller",1],["camera","Camera gimbal",0],["gear","Landing gear",1]]; // 3rd: show on phones
+    var wrap=$("#labels-a"); var lbls=LBL.map(function(l){var d=document.createElement("div");d.className="lbl"+(l[2]?"":" desk-only");d.innerHTML="<i></i><span>"+l[1]+"</span>";wrap.appendChild(d);return {k:l[0],el:d};});
+    var mouse={x:0,y:0},tilt={x:0,y:0},sp=state.a,v=new THREE.Vector3();
+    addEventListener("pointermove",function(e){mouse.x=e.clientX/innerWidth*2-1;mouse.y=e.clientY/innerHeight*2-1;},{passive:true});
+    function resize(){sizeTo(r,cam,canvas);} addEventListener("resize",resize); resize();
+    canvas.parentNode.classList.add("is-ready");
+    var ease=function(t){return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;};
+    visibleLoop(canvas,function(t,dt){
+      sp=reduce?state.a:damp(sp,state.a,7,dt);
+      var e=ease(Math.min(1,Math.max(0,(sp-.05)/.8)));
+      Object.keys(parts).forEach(function(k){parts[k].position.copy(base[k]).add(explodeVec(k).multiplyScalar(e));});
+      for(var i=1;i<=4;i++){var p=parts["prop_"+i];if(p)p.rotation.y=reduce?0:t*(i%2?18:-18);}
+      if(!reduce){tilt.x=damp(tilt.x,mouse.y*.12,3,dt);tilt.y=damp(tilt.y,mouse.x*.35,3,dt);}
+      rig.rotation.set(tilt.x*(1-e*.5),-.6+e*.5+tilt.y*(1-e*.4),0);
+      rig.position.y=reduce?0:Math.sin(t*1.4)*.012*(1-e);
+      var n=narrow(), dist=n?3.9:2.55;
+      var y0=n?-.55:-.33, y1=n?.06:-.02;                         // stack low under the headline, exploded centred
+      cam.fov=n?36:30; cam.updateProjectionMatrix();
+      cam.position.set(0,.55+e*.2,dist+e*(n?.5:-.15));
+      cam.lookAt(0,-(y0+(y1-y0)*e)*1+0,0);
+      r.render(scene,cam);
+      // labels
+      var W=canvas.clientWidth,H=canvas.clientHeight, la=Math.max(0,(e-.55)/.35);
+      lbls.forEach(function(L){var o=parts[L.k];if(!o){return;}o.getWorldPosition(v);v.project(cam);
+        var x=(v.x*.5+.5)*W,y=(-v.y*.5+.5)*H;L.el.style.transform="translate("+x.toFixed(1)+"px,"+y.toFixed(1)+"px)";L.el.style.opacity=la.toFixed(3);L.el.classList.toggle("left",x>W*.62);});
+    });
+  }
+
+  /* ---------- B: clay ---------- */
+  function setupB(model){
+    var canvas=$("#gl-b"), r=makeRenderer(canvas,{shadows:true,exposure:1.0}); if(!r)return;
+    var scene=new THREE.Scene(), cam=new THREE.PerspectiveCamera(28,1,.05,50);
+    scene.environment=studioEnv(r,true);
+    scene.add(new THREE.HemisphereLight(0xfff4ea,0xd9c9b8,1.4));
+    var k=keyLight(0xfff1e2,2.2); k.shadow.radius=12; scene.add(k);
+    scene.add(groundShadow(.22));
+    var C={Carbon:0xfffaf2,Graphite:0xf1e4d4,Lime:0xff7a3d,Metal:0x5f9dff,Prop:0xffffff,Glass:0x2b3a6b,Rubber:0xcbb39b,Accent:0xffc53d};
+    var cache={};
+    model.traverse(function(o){if(o.isMesh){var n=o.material&&o.material.name||"";if(!cache[n])cache[n]=new THREE.MeshStandardMaterial({color:C[n]||0xf2e8dc,roughness:n==="Glass"?.25:.82,metalness:0,envMapIntensity:.6});o.material=cache[n];o.castShadow=true;o.receiveShadow=true;}});
+    centerModel(model); var rig=new THREE.Group(); rig.add(model); rig.scale.setScalar(1.05); scene.add(rig);
+    var parts=partsOf(model), mouse={x:0,y:0}, look={x:0,y:0}, hop=0;
+    canvas.addEventListener("pointermove",function(e){var b=canvas.getBoundingClientRect();mouse.x=(e.clientX-b.left)/b.width*2-1;mouse.y=(e.clientY-b.top)/b.height*2-1;},{passive:true});
+    canvas.addEventListener("pointerleave",function(){mouse.x=0;mouse.y=0;});
+    canvas.addEventListener("click",function(){if(reduce||!window.gsap)return;var o={h:0};gsap.timeline().to(o,{h:1,duration:.9,ease:"power2.inOut",onUpdate:function(){hop=o.h;}}).set(o,{h:0}).add(function(){hop=0;});});
+    function resize(){sizeTo(r,cam,canvas);} addEventListener("resize",resize); resize();
+    canvas.parentNode.classList.add("is-ready");
+    visibleLoop(canvas,function(t,dt){
+      if(!reduce){look.x=damp(look.x,mouse.x,3.5,dt);look.y=damp(look.y,mouse.y,3.5,dt);}
+      var bob=reduce?0:Math.sin(t*2)*.03;
+      rig.position.set(look.x*.12,.05+bob+Math.sin(hop*Math.PI)*.22,0);
+      rig.rotation.set(look.y*.25+(reduce?0:Math.sin(t*1.3)*.04),-.5+look.x*.6+hop*Math.PI*2,-look.x*.15);
+      for(var i=1;i<=4;i++){var p=parts["prop_"+i];if(p)p.rotation.y=reduce?0:t*(i%2?14:-14);}
+      var n=narrow(); cam.position.set(0,.45,n?2.9:1.95); cam.lookAt(0,.02,0);
+      r.render(scene,cam);
+    });
+  }
+
+  /* ---------- C: technical x-ray ---------- */
+  function setupC(model){
+    var canvas=$("#gl-c"), r=makeRenderer(canvas,{shadows:false,exposure:1}); if(!r)return;
+    var scene=new THREE.Scene(), cam=new THREE.PerspectiveCamera(30,1,.05,50);
+    centerModel(model); var rig=new THREE.Group(); rig.add(model); scene.add(rig);
+    var GROUPS=[["battery"],["motor_1","motor_2","motor_3","motor_4","prop_1","prop_2","prop_3","prop_4"],["gps"],["camera"],["body","cover"]];
+    var items=[];
+    model.traverse(function(o){if(o.isMesh){
+      var fill=new THREE.MeshBasicMaterial({color:0x7ea4ff,transparent:true,opacity:.05,depthWrite:false});
+      o.material=fill;
+      var edges=new THREE.LineSegments(new THREE.EdgesGeometry(o.geometry,28),new THREE.LineBasicMaterial({color:0x9db8ff,transparent:true,opacity:.7}));
+      o.add(edges); items.push({o:o,fill:fill,line:edges.material});
+    }});
+    var hot=new THREE.Color(0xffb547), cold=new THREE.Color(0x7ea4ff);
+    function resize(){sizeTo(r,cam,canvas);} addEventListener("resize",resize); resize();
+    var sp=0;
+    visibleLoop(canvas,function(t,dt){
+      sp=reduce?state.c:damp(sp,state.c,7,dt);
+      var k=1-Math.exp(-9*dt);
+      var gi=Math.min(4,Math.floor(sp*5));
+      var names=GROUPS[gi];
+      items.forEach(function(it){var on=names.indexOf(it.o.name)>-1||names.indexOf(it.o.parent&&it.o.parent.name)>-1;
+        it.line.color.lerp(on?hot:cold,k); it.line.opacity+=((on?1:.45)-it.line.opacity)*k;
+        it.fill.color.lerp(on?hot:cold,k); it.fill.opacity+=((on?.22:.03)-it.fill.opacity)*k;});
+      rig.rotation.set(.35,-.8+sp*Math.PI*1.2+(reduce?0:Math.sin(t*.5)*.03),0);
+      var n=narrow(); cam.position.set(0,.2,n?2.7:1.75); cam.lookAt(0,0,0);
+      r.render(scene,cam);
+    });
+  }
+})();
+</script>
+</body>
+</html>

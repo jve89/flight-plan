@@ -1,0 +1,102 @@
+/* Johan's Design DNA: base tokens.
+   Copy into the project, then pick ONE theme block (or both, scoped to sections)
+   and set --accent from the subject. Values come from his approved sites. */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300..800&display=swap");
+/* In Astro: prefer self-hosting Inter (e.g. @fontsource-variable/inter) over the Google import. */
+
+:root{
+  /* Type */
+  --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --fw-light:300; --fw-regular:400; --fw-medium:500; --fw-semibold:620; --fw-strong:700; --fw-display:800;
+  --step-display: clamp(2.55rem, 1.5rem + 4.7vw, 5.3rem);   /* hero h1 */
+  --step-h2:      clamp(1.9rem, 1.3rem + 2.6vw, 3.25rem);
+  --step-h3:      clamp(1.15rem, 1.05rem + .4vw, 1.375rem);
+  --step-lead:    clamp(1.05rem, 1rem + .35vw, 1.25rem);
+  --step-body:    1rem;
+  --step-sm:      .9rem;
+  --step-xs:      .8rem;
+  --ls-display:-.045em; --ls-h2:-.035em; --ls-h3:-.015em; --ls-ui:-.01em;
+  --lh-display:1.02; --lh-heading:1.15; --lh-body:1.6;
+  --measure:62ch; --measure-lead:40ch;
+
+  /* Space */
+  --sp-1:.25rem; --sp-2:.5rem; --sp-3:.75rem; --sp-4:1rem; --sp-5:1.25rem; --sp-6:1.5rem;
+  --sp-8:2rem; --sp-10:2.5rem; --sp-12:3rem; --sp-16:4rem; --sp-20:5rem; --sp-24:6rem;
+  --section-y: clamp(4rem, 9vw, 7.5rem);
+  --gutter: clamp(1.25rem, 4vw, 2rem);
+  --wrap: 72rem;
+
+  /* Shape */
+  --r-sm:.5rem; --r-md:.875rem; --r-card:1.25rem; --r-lg:1.5rem; --r-pill:999px;
+
+  /* Motion */
+  --ease-out: cubic-bezier(.22,1,.36,1);
+  --ease-ui:  cubic-bezier(.4,0,.2,1);
+  --dur-ui: .2s;
+}
+
+/* ---------- Dark theme (Lendav / DAS / Complai variant A) ---------- */
+.theme-dark{
+  --bg:#07090d;          /* or a tinted deep tone from the subject, e.g. petrol #061219 */
+  --raised:#0c1017;
+  --panel:#11161f;
+  --line:rgba(226,240,250,.09);
+  --ink:#f2f5f8;
+  --ink-2:#c3cfdb;
+  --muted:#8a97a5;
+  --accent:#22d3ee;       /* set from the subject */
+  --accent-ink:#04222b;   /* text on accent: check 4.5:1 */
+  --accent-soft:rgba(34,211,238,.18);
+  --glass:rgba(12,16,23,.55);
+  --glass-line:rgba(255,255,255,.1);
+  --ghost-line:rgba(255,255,255,.26);
+  --shadow-panel:0 1px 0 rgba(255,255,255,.04) inset, 0 40px 90px rgba(0,0,0,.4);
+}
+
+/* ---------- Light theme (Penpot / Complai variant B) ---------- */
+.theme-light{
+  --bg:#f3f5f8;
+  --raised:#ffffff;
+  --panel:#ffffff;
+  --line:#dde3ea;
+  --ink:#0a1824;
+  --ink-2:#3a4b5a;
+  --muted:#5b6c7b;
+  --accent:#1452e6;
+  --accent-ink:#ffffff;
+  --accent-soft:#e7eeff;
+  --glass:rgba(255,255,255,.72);
+  --glass-line:rgba(10,24,36,.08);
+  --ghost-line:rgba(10,24,36,.2);
+  --shadow-panel:0 1px 2px rgba(10,24,36,.04), 0 30px 70px rgba(10,24,36,.08);
+}
+
+/* ---------- Base ---------- */
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;font-family:var(--font);font-size:var(--step-body);line-height:var(--lh-body);
+  background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+
+.h-display{font-size:var(--step-display);font-weight:var(--fw-display);letter-spacing:var(--ls-display);
+  line-height:var(--lh-display);text-wrap:balance;margin:0}
+.h-display .thin{font-weight:var(--fw-light);letter-spacing:-.04em}
+.h2{font-size:var(--step-h2);font-weight:var(--fw-display);letter-spacing:var(--ls-h2);line-height:var(--lh-heading);text-wrap:balance;margin:0}
+.lead{font-size:var(--step-lead);line-height:1.55;color:var(--ink-2);max-width:var(--measure-lead);text-wrap:pretty}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 1.45rem;
+  border-radius:var(--r-pill);font-weight:650;font-size:.97rem;letter-spacing:var(--ls-ui);text-decoration:none;
+  border:1px solid transparent;transition:transform var(--dur-ui),background-color var(--dur-ui),border-color var(--dur-ui),opacity var(--dur-ui)}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{background:var(--accent);color:var(--accent-ink)}
+.btn-primary:hover{opacity:.92}
+.btn-ghost{border-color:var(--ghost-line);color:var(--ink)}
+.btn-ghost:hover{border-color:var(--ink)}
+.btn-sm{min-height:40px;padding:0 1.1rem;font-size:.88rem}
+
+.panel{background:var(--raised);border:1px solid var(--line);border-radius:var(--r-card);box-shadow:var(--shadow-panel)}
+
+@media (prefers-reduced-motion:reduce){
+  *{scroll-behavior:auto!important}
+  .btn{transition:none}.btn:hover{transform:none}
+}
